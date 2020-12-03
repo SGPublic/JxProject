@@ -1,0 +1,89 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group 'io.github.sgpublic'
+//SNAPSHOT
+version '0.2.6'
+
+if (file("./gradle.properties").exists()){
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allJava
+    }
+
+    task javadocJar(type: Jar) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    publishing {
+        publications {
+            JxProject(MavenPublication) {
+                from components.java
+                artifact sourcesJar
+
+                artifact javadocJar
+
+                pom {
+                    name = "JxProject"
+                    description = "JavaFX Extra Project，一个开源的JavaFX工程管理框架，能帮助你更清晰的管理你的JavaFX工程，并扩展支持了更多特性。"
+                    url = "https://github.com/SGPublic/JxProject"
+                    licenses {
+                        license {
+                            name = "The GNU GENERAL PUBLIC LICENSE, Version 3"
+                            url = "https://www.gnu.org/licenses/gpl-3.0.html"
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = "sgpublic"
+                            name = "SGPublic"
+                        }
+                    }
+                    scm {
+                        connection = "scm:git:https://github.com/SGPublic/JxProject.git"
+                        developerConnection = "scm:git:https://github.com/SGPublic/JxProject.git"
+                        url = "https://github.com/SGPublic/JxProject"
+                    }
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                name 'Release'
+                url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+                credentials {
+                    username = "${NEXUS_USERNAME}"
+                    password = "${NEXUS_PASSWORD}"
+                }
+            }
+            maven {
+                name = 'Snapshot'
+                url = 'https://oss.sonatype.org/content/repositories/snapshots'
+                credentials {
+                    username = "${NEXUS_USERNAME}"
+                    password = "${NEXUS_PASSWORD}"
+                }
+            }
+        }
+    }
+
+    signing {
+        sign publishing.publications.JxProject
+    }
+}
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+
+    implementation 'io.github.sgpublic:SimplifyXMLObject:1.2.2'
+}
